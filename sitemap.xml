@@ -1,84 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>https://ddostalker.github.io/2025/03/13/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91-mcp-learn-1/</loc>
+    
+    <lastmod>2025-03-13</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddostalker.github.io/2024/11/24/%E7%BD%91%E9%BC%8E%E6%9D%AF2024%E5%8D%8A%E5%86%B3%E8%B5%9B%E6%95%B0%E6%8D%AE%E9%80%86%E5%90%91/</loc>
+    
+    <lastmod>2024-11-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddostalker.github.io/2024/11/29/%E7%BD%91%E9%BC%8E%E6%9D%AF2024%E2%80%94%E2%80%94cardmaster/</loc>
+    
+    <lastmod>2024-11-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddostalker.github.io/2024/07/04/A-T-Field-%E8%B1%AA%E7%8C%AA%E4%B8%A4%E9%9A%BE/</loc>
+    
+    <lastmod>2024-11-29</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddostalker.github.io/categories/index.html</loc>
+    
+    <lastmod>2024-07-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddostalker.github.io/tags/index.html</loc>
+    
+    <lastmod>2024-07-04</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
 
+  <url>
+    <loc>https://ddostalker.github.io/</loc>
+    <lastmod>2025-03-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
 
-<url>
-  <loc>https://ddostalker.github.io/</loc>
-  <priority>1.00</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/archives/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/categories/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/2025/03/13/%E5%AE%89%E5%85%A8%E5%BC%80%E5%8F%91-mcp-learn-1/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/categories/%E5%B7%A5%E5%85%B7%E5%BC%80%E5%8F%91/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/2024/11/29/%E7%BD%91%E9%BC%8E%E6%9D%AF2024%E2%80%94%E2%80%94cardmaster/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/categories/%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%9B%98/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/categories/%E8%B5%9B%E5%90%8E%E5%A4%8D%E7%9B%98/%E7%BD%91%E9%BC%8E%E6%9D%AF2024/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/2024/11/24/%E7%BD%91%E9%BC%8E%E6%9D%AF2024%E5%8D%8A%E5%86%B3%E8%B5%9B%E6%95%B0%E6%8D%AE%E9%80%86%E5%90%91/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/2024/07/04/A-T-Field-%E8%B1%AA%E7%8C%AA%E4%B8%A4%E9%9A%BE/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/categories/%E6%97%A5%E5%B8%B8/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8F%91%E6%8E%98/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/%E5%86%85%E5%BF%83/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/ctf/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/%E5%93%B2%E5%AD%A6/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/%E9%80%86%E5%90%91/</loc>
-  <priority>0.80</priority>
-</url>
-<url>
-  <loc>https://ddostalker.github.io/tags/%E5%BC%80%E5%8F%91/</loc>
-  <priority>0.80</priority>
-</url>
+  
 
-
+  
 </urlset>
