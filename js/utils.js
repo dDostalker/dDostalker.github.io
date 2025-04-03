@@ -214,7 +214,7 @@
                   'zoomOut',
                   'toggle1to1',
                   'rotateCCW',
-                  'rotateCW',
+                  'rotateCW',  // 这里是顺时针旋转功能的配置位置
                   'flipX',
                   'flipY'
                 ],
