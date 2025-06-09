@@ -1,0 +1,268 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="dark"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>模糊测试一 | 浮生若梦</title><meta name="author" content="dDostalker"><meta name="copyright" content="dDostalker"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#0d0d0d"><meta name="description" content="笔者今天下午进行了一场二进制研究相关面试，但面试后发现笔者在fuzz方面的原理和概念上并不熟练，并且在深度上严重不足，于是总结归纳，希望系统性的学习以下模糊测试，并决定专开一栏，进行相关的系统深入学习。 了解模糊测试模糊测试概念通过自动化生成并执行大量测试用例来返现目标的未知漏洞 模糊测试原理模型生成随机字符串生成随机字符串是一个比较简陋的方法，可能效果并不好，尤其是协议部分，可能在协议部分就出现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模糊测试一">
+<meta property="og:url" content="https://ddostalker.github.io/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/index.html">
+<meta property="og:site_name" content="浮生若梦">
+<meta property="og:description" content="笔者今天下午进行了一场二进制研究相关面试，但面试后发现笔者在fuzz方面的原理和概念上并不熟练，并且在深度上严重不足，于是总结归纳，希望系统性的学习以下模糊测试，并决定专开一栏，进行相关的系统深入学习。 了解模糊测试模糊测试概念通过自动化生成并执行大量测试用例来返现目标的未知漏洞 模糊测试原理模型生成随机字符串生成随机字符串是一个比较简陋的方法，可能效果并不好，尤其是协议部分，可能在协议部分就出现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ddostalker.github.io/img/dDostalker.jpg">
+<meta property="article:published_time" content="2025-06-09T12:59:11.000Z">
+<meta property="article:modified_time" content="2025-06-09T13:04:57.936Z">
+<meta property="article:author" content="dDostalker">
+<meta property="article:tag" content="pwn">
+<meta property="article:tag" content="固件分析">
+<meta property="article:tag" content="逆向工程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ddostalker.github.io/img/dDostalker.jpg"><link rel="shortcut icon" href="/img/tittle.jpg"><link rel="canonical" href="https://ddostalker.github.io/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta name="msvalidate.01" content="38A57868CBC8F90FB6CEEC0F11CFCA2C"/><meta name="google-site-verification" content="-UwBRfWTwjuPwGqQ3KnINva5qwsb6mfO1OBFouNBdfY"/><link rel="stylesheet" href="/css/index.css?v=4.14.0-b3"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.35/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>(()=>{
+      const saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+      
+      window.btf = {
+        saveToLocal: saveToLocal,
+        getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+          script.src = url
+          script.async = true
+          script.onerror = reject
+          script.onload = script.onreadystatechange = function() {
+            const loadState = this.readyState
+            if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+            script.onload = script.onreadystatechange = null
+            resolve()
+          }
+
+          Object.keys(attr).forEach(key => {
+            script.setAttribute(key, attr[key])
+          })
+
+          document.head.appendChild(script)
+        }),
+
+        getCSS: (url, id = false) => new Promise((resolve, reject) => {
+          const link = document.createElement('link')
+          link.rel = 'stylesheet'
+          link.href = url
+          if (id) link.id = id
+          link.onerror = reject
+          link.onload = link.onreadystatechange = function() {
+            const loadState = this.readyState
+            if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+            link.onload = link.onreadystatechange = null
+            resolve()
+          }
+          document.head.appendChild(link)
+        }),
+
+        addGlobalFn: (key, fn, name = false, parent = window) => {
+          const pjaxEnable = false
+          if (!pjaxEnable && key.startsWith('pjax')) return
+
+          const globalFn = parent.globalFn || {}
+          const keyObj = globalFn[key] || {}
+    
+          if (name && keyObj[name]) return
+    
+          name = name || Object.keys(keyObj).length
+          keyObj[name] = fn
+          globalFn[key] = keyObj
+          parent.globalFn = globalFn
+        }
+      }
+    
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+      
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })()</script><link rel="stylesheet" href="/dDostalker" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: dDostalker","link":"链接: ","source":"来源: 浮生若梦","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '模糊测试一',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2025-06-09 21:04:57'
+}</script><meta name="generator" content="Hexo 7.2.0"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/dDostalker.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: transparent"><nav id="nav"><span id="blog-info"><a href="/" title="浮生若梦"><span class="site-name">浮生若梦</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> Home</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> Archives</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">模糊测试一</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-06-09T12:59:11.000Z" title="发表于 2025-06-09 20:59:11">2025-06-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-06-09T13:04:57.936Z" title="更新于 2025-06-09 21:04:57">2025-06-09</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/iot/">iot</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/iot/%E5%B7%A5%E5%85%B7%E5%BC%80%E5%8F%91/">工具开发</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="模糊测试一"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>笔者今天下午进行了一场二进制研究相关面试，但面试后发现笔者在fuzz方面的原理和概念上并不熟练，并且在深度上严重不足，于是总结归纳，希望系统性的学习以下模糊测试，并决定专开一栏，进行相关的系统深入学习。</p>
+<h1 id="了解模糊测试"><a href="#了解模糊测试" class="headerlink" title="了解模糊测试"></a>了解模糊测试</h1><h2 id="模糊测试概念"><a href="#模糊测试概念" class="headerlink" title="模糊测试概念"></a>模糊测试概念</h2><p>通过自动化生成并执行大量测试用例来返现目标的未知漏洞</p>
+<h2 id="模糊测试原理模型"><a href="#模糊测试原理模型" class="headerlink" title="模糊测试原理模型"></a>模糊测试原理模型</h2><h3 id="生成随机字符串"><a href="#生成随机字符串" class="headerlink" title="生成随机字符串"></a>生成随机字符串</h3><p>生成随机字符串是一个比较简陋的方法，可能效果并不好，尤其是协议部分，可能在协议部分就出现问题</p>
+<p><a target="_blank" rel="noopener" href="https://www.helloimg.com/i/2025/06/09/6846dac0cd9f5.png"><img src="https://www.helloimg.com/i/2025/06/09/6846dac0cd9f5.png" alt="image-20250609182518403.png"></a></p>
+<h3 id="基于模板生成"><a href="#基于模板生成" class="headerlink" title="基于模板生成"></a>基于模板生成</h3><p>这里我们以HTTP协议为例，以下是一个HTTP协议的例子</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http 1.0</span><br><span class="line"><span class="keyword">GET</span> <span class="string">/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>developer.mozilla.org</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh</span><br></pre></td></tr></table></figure>
+
+<p>其中我们知道，类似于http这一类的信息是不变的，而像1.0、GET类似的信息是可变的，而下方Host中的操作是资源字符部分。基于以上我们的分析，我们可以生成一个模板，然后根据模板来进行字符串的生成，只有通过这一模板生成的字符串才是有意义的。</p>
+<p><a target="_blank" rel="noopener" href="https://www.helloimg.com/i/2025/06/09/6846da99474b0.png"><img src="https://www.helloimg.com/i/2025/06/09/6846da99474b0.png" alt="image-20250609184102524.png"></a></p>
+<h3 id="基于覆盖式的生成（覆盖制导）"><a href="#基于覆盖式的生成（覆盖制导）" class="headerlink" title="基于覆盖式的生成（覆盖制导）"></a>基于覆盖式的生成（覆盖制导）</h3><p>我们假设有以下的代码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if (data[0] &gt; 0)&#123;</span><br><span class="line"></span><br><span class="line">	func1()</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line"></span><br><span class="line">	func2()</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>覆盖引导后就会将代码的流程生成出来程序的流程图，这个流程我们将其称为 <code>代码路径</code></p>
+<p><a target="_blank" rel="noopener" href="https://www.helloimg.com/i/2025/06/09/6846dac50f365.png"><img src="https://www.helloimg.com/i/2025/06/09/6846dac50f365.png" alt="image-20250609185052069.png"></a></p>
+<h4 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h4><p>那么这样的功能是怎么实现出来的呢？这里就有一定插桩相关的原理，我们再回到上面的代码来看，我们可以在程序中插入log1，log2，示例如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">log(__main_start)</span><br><span class="line">if (data[0] &gt; 0)&#123;</span><br><span class="line"></span><br><span class="line">	func1()</span><br><span class="line">	log(func1.info)</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line"></span><br><span class="line">	func2()</span><br><span class="line">	log(func1.info)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此后程序可以对生成的log文件进行跟踪，通过生成的log来分析运行的路径来确定程序的运行流程，从而生成流程图。</p>
+<h4 id="为什么要实现覆盖引导"><a href="#为什么要实现覆盖引导" class="headerlink" title="为什么要实现覆盖引导"></a>为什么要实现覆盖引导</h4><p>因为每次进行代码路径分析的时候，我们会检测到新的代码路径，而不断的扫描新路径则会不断提高代码的覆盖率，并说明这段代码是有意义的，那么接下来需要将代码放入后续的生成中，基于这个数据上进一步变异生成，然后不断重复这一个过程。</p>
+<h2 id="特殊条件的fuzz"><a href="#特殊条件的fuzz" class="headerlink" title="特殊条件的fuzz"></a>特殊条件的fuzz</h2><h3 id="图形化FUZZ"><a href="#图形化FUZZ" class="headerlink" title="图形化FUZZ"></a>图形化FUZZ</h3><p>很多时候的程序并不像我们我们上述所给出的程序一样，一定存在输入和输出的流，那么此时我们要怎么进行fuzz呢？我们知道，大多数的UI实现都是会对UI和func存在绑定的，那么我们的第一部程序拆解，最终拆解成我们可以进行调用的某一个函数，那么这样后我们就可以和常规的fuzz一致了。</p>
+<h3 id="持久化程序fuzz"><a href="#持久化程序fuzz" class="headerlink" title="持久化程序fuzz"></a>持久化程序fuzz</h3><p>我们标准的fuzz的理想情况是程序是运行后给出结果立刻结束，第二次测试则进行一个新的运行。但是很多程序并不会这样，譬如webserver，它会一直停留运行，那么我们需要有以下的方法</p>
+<ul>
+<li>idapatch将程序修改程序逻辑为只处理1次</li>
+<li>修改fuzz逻辑<ul>
+<li>自己实现fuzz</li>
+<li>持续性fuzz</li>
+</ul>
+</li>
+</ul>
+<h2 id="经典模糊测试工具"><a href="#经典模糊测试工具" class="headerlink" title="经典模糊测试工具"></a>经典模糊测试工具</h2><ul>
+<li>AFL</li>
+<li>libafl （iot常用，rust静态连接低依赖，有点像乐高，可以自己拼接功能）</li>
+<li>winafl（window版）</li>
+<li>syzkaller（同原理，进程fuzz）</li>
+<li>libfuzzer（可以针对程序的某个函数）</li>
+<li>fuzzilli（CS引擎fuzz）</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://ddostalker.github.io">dDostalker</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://ddostalker.github.io/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/">https://ddostalker.github.io/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ddostalker.github.io" target="_blank">浮生若梦</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/pwn/">pwn</a><a class="post-meta__tags" href="/tags/%E5%9B%BA%E4%BB%B6%E5%88%86%E6%9E%90/">固件分析</a><a class="post-meta__tags" href="/tags/%E9%80%86%E5%90%91%E5%B7%A5%E7%A8%8B/">逆向工程</a></div><div class="post_share"><div class="social-share" data-image="/img/dDostalker.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2025/06/01/%E4%BF%AE%E5%A4%8Dida8-4%E7%A7%BB%E6%A4%8Darm%E7%AD%89%E5%8F%8D%E7%BC%96%E8%AF%91%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%EF%BC%88%E5%90%AB%E5%AE%8C%E6%95%B4%E7%89%88%E4%B8%8B%E8%BD%BD%EF%BC%89/" title="修复ida8.4移植arm等反编译卡死问题（含完整版下载）"><div class="cover" style="background: var(--default-bg-color)"></div><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">修复ida8.4移植arm等反编译卡死问题（含完整版下载）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/07/19/%E8%A7%A3%E5%9B%BA%E4%BB%B6%E6%9F%90T%E8%B7%AF%E7%94%B1%E5%99%A8%E8%AE%BE%E5%A4%87bin%E5%8C%85/" title="解压某T品牌路由器定制固件bin包的技术分析"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-07-19</div><div class="title">解压某T品牌路由器定制固件bin包的技术分析</div></div></a></div><div><a href="/2025/03/24/CVE-2025-24071-windows%E8%B5%84%E6%BA%90%E7%AE%A1%E7%90%86%E5%99%A8%E6%AC%BA%E9%AA%97%E6%BC%8F%E6%B4%9E/" title="CVE-2025-24071-windows资源管理器欺骗漏洞"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-24</div><div class="title">CVE-2025-24071-windows资源管理器欺骗漏洞</div></div></a></div><div><a href="/2025/05/22/CVE-2018-16333%E5%A4%8D%E7%8E%B0/" title="CVE-2018-16333复现"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-22</div><div class="title">CVE-2018-16333复现</div></div></a></div><div><a href="/2025/05/09/cve-1873622/" title="cve-1873622"><div class="cover" style="background: var(--default-bg-color)"></div><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-09</div><div class="title">cve-1873622</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/dDostalker.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">dDostalker</div><div class="author-info__description">人百年一世，龙百年一岁。君生吾亦生，君未变，而吾已老</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">13</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">12</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">7</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/dDostalker"><i class="fab fa-github"></i><span>---join---</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/dDostalker" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fa-solid fa-crow text-muted"></i><span>公告</span></div><div class="announcement_content">红衣佳人白衣友，朝与同游暮同酒。世人谓我恋长安，其实只恋长安某</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%86%E8%A7%A3%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">了解模糊测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">模糊测试概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%8E%9F%E7%90%86%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.2.</span> <span class="toc-text">模糊测试原理模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E9%9A%8F%E6%9C%BA%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="toc-number">1.2.1.</span> <span class="toc-text">生成随机字符串</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90"><span class="toc-number">1.2.2.</span> <span class="toc-text">基于模板生成</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E8%A6%86%E7%9B%96%E5%BC%8F%E7%9A%84%E7%94%9F%E6%88%90%EF%BC%88%E8%A6%86%E7%9B%96%E5%88%B6%E5%AF%BC%EF%BC%89"><span class="toc-number">1.2.3.</span> <span class="toc-text">基于覆盖式的生成（覆盖制导）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">实现原理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%AE%9E%E7%8E%B0%E8%A6%86%E7%9B%96%E5%BC%95%E5%AF%BC"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">为什么要实现覆盖引导</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%89%B9%E6%AE%8A%E6%9D%A1%E4%BB%B6%E7%9A%84fuzz"><span class="toc-number">1.3.</span> <span class="toc-text">特殊条件的fuzz</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E5%BD%A2%E5%8C%96FUZZ"><span class="toc-number">1.3.1.</span> <span class="toc-text">图形化FUZZ</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8C%81%E4%B9%85%E5%8C%96%E7%A8%8B%E5%BA%8Ffuzz"><span class="toc-number">1.3.2.</span> <span class="toc-text">持久化程序fuzz</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%8F%E5%85%B8%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7"><span class="toc-number">1.4.</span> <span class="toc-text">经典模糊测试工具</span></a></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background: transparent"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By dDostalker</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.14.0-b3"></script><script src="/js/main.js?v=4.14.0-b3"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.35/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const runMermaid = (ele) => {
+    window.loadMermaid = true
+    const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default'
+
+    Array.from(ele).forEach((item, index) => {
+      const mermaidSrc = item.firstElementChild
+      const mermaidThemeConfig = '%%{init:{ \'theme\':\'' + theme + '\'}}%%\n'
+      const mermaidID = 'mermaid-' + index
+      const mermaidDefinition = mermaidThemeConfig + mermaidSrc.textContent
+
+      const renderFn = mermaid.render(mermaidID, mermaidDefinition)
+
+      const renderV10 = () => {
+        renderFn.then(({svg}) => {
+          mermaidSrc.insertAdjacentHTML('afterend', svg)
+        })
+      }
+
+      const renderV9 = svg => {
+        mermaidSrc.insertAdjacentHTML('afterend', svg)
+      }
+
+      typeof renderFn === 'string' ? renderV9(renderFn) : renderV10()
+    })
+  }
+
+  const codeToMermaid = () => {
+    const codeMermaidEle = document.querySelectorAll('pre > code.mermaid')
+    if (codeMermaidEle.length === 0) return
+    
+    codeMermaidEle.forEach(ele => {
+      const newEle = document.createElement('div')
+      newEle.className = 'mermaid-wrap'
+      newEle.innerHTML = `<pre class="mermaid-src" hidden>${ele.textContent}</pre>`
+      ele.parentNode.replaceWith(newEle)
+    })
+  }
+
+  const loadMermaid = () => {
+    if (false) codeToMermaid()
+    const $mermaid = document.querySelectorAll('#article-container .mermaid-wrap')
+    if ($mermaid.length === 0) return
+
+    const runMermaidFn = () => runMermaid($mermaid)
+    btf.addGlobalFn('themeChange', runMermaidFn, 'mermaid')
+    window.loadMermaid ? runMermaidFn() : btf.getScript('https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js').then(runMermaidFn)
+  }
+  
+  btf.addGlobalFn('encrypt', loadMermaid, 'mermaid')
+  window.pjax ? loadMermaid() : document.addEventListener('DOMContentLoaded', loadMermaid)
+})()</script></div><script defer="defer" id="fluttering_ribbon" mobile="ture" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/canvas-fluttering-ribbon.min.js"></script><script id="click-show-text" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/click-show-text.min.js" data-mobile="false" data-text="苏九儿,龙三元,郭双,零零" data-fontsize="15px" data-random="true" async="async"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js?v=4.14.0-b3"></script></div></div></body></html>

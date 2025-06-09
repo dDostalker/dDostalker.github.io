@@ -4,6 +4,37 @@
   
     
     <entry>
+      <title>模糊测试一</title>
+      <link href="/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/"/>
+      <url>/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/</url>
+      
+        <content type="html"><![CDATA[<p>笔者今天下午进行了一场二进制研究相关面试，但面试后发现笔者在fuzz方面的原理和概念上并不熟练，并且在深度上严重不足，于是总结归纳，希望系统性的学习以下模糊测试，并决定专开一栏，进行相关的系统深入学习。</p><h1 id="了解模糊测试"><a href="#了解模糊测试" class="headerlink" title="了解模糊测试"></a>了解模糊测试</h1><h2 id="模糊测试概念"><a href="#模糊测试概念" class="headerlink" title="模糊测试概念"></a>模糊测试概念</h2><p>通过自动化生成并执行大量测试用例来返现目标的未知漏洞</p><h2 id="模糊测试原理模型"><a href="#模糊测试原理模型" class="headerlink" title="模糊测试原理模型"></a>模糊测试原理模型</h2><h3 id="生成随机字符串"><a href="#生成随机字符串" class="headerlink" title="生成随机字符串"></a>生成随机字符串</h3><p>生成随机字符串是一个比较简陋的方法，可能效果并不好，尤其是协议部分，可能在协议部分就出现问题</p><p><a href="https://www.helloimg.com/i/2025/06/09/6846dac0cd9f5.png"><img src="https://www.helloimg.com/i/2025/06/09/6846dac0cd9f5.png" alt="image-20250609182518403.png"></a></p><h3 id="基于模板生成"><a href="#基于模板生成" class="headerlink" title="基于模板生成"></a>基于模板生成</h3><p>这里我们以HTTP协议为例，以下是一个HTTP协议的例子</p><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http 1.0</span><br><span class="line"><span class="keyword">GET</span> <span class="string">/</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>developer.mozilla.org</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh</span><br></pre></td></tr></table></figure><p>其中我们知道，类似于http这一类的信息是不变的，而像1.0、GET类似的信息是可变的，而下方Host中的操作是资源字符部分。基于以上我们的分析，我们可以生成一个模板，然后根据模板来进行字符串的生成，只有通过这一模板生成的字符串才是有意义的。</p><p><a href="https://www.helloimg.com/i/2025/06/09/6846da99474b0.png"><img src="https://www.helloimg.com/i/2025/06/09/6846da99474b0.png" alt="image-20250609184102524.png"></a></p><h3 id="基于覆盖式的生成（覆盖制导）"><a href="#基于覆盖式的生成（覆盖制导）" class="headerlink" title="基于覆盖式的生成（覆盖制导）"></a>基于覆盖式的生成（覆盖制导）</h3><p>我们假设有以下的代码</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">if (data[0] &gt; 0)&#123;</span><br><span class="line"></span><br><span class="line">func1()</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line"></span><br><span class="line">func2()</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>覆盖引导后就会将代码的流程生成出来程序的流程图，这个流程我们将其称为 <code>代码路径</code></p><p><a href="https://www.helloimg.com/i/2025/06/09/6846dac50f365.png"><img src="https://www.helloimg.com/i/2025/06/09/6846dac50f365.png" alt="image-20250609185052069.png"></a></p><h4 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h4><p>那么这样的功能是怎么实现出来的呢？这里就有一定插桩相关的原理，我们再回到上面的代码来看，我们可以在程序中插入log1，log2，示例如下</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">log(__main_start)</span><br><span class="line">if (data[0] &gt; 0)&#123;</span><br><span class="line"></span><br><span class="line">func1()</span><br><span class="line">log(func1.info)</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line"></span><br><span class="line">func2()</span><br><span class="line">log(func1.info)</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>此后程序可以对生成的log文件进行跟踪，通过生成的log来分析运行的路径来确定程序的运行流程，从而生成流程图。</p><h4 id="为什么要实现覆盖引导"><a href="#为什么要实现覆盖引导" class="headerlink" title="为什么要实现覆盖引导"></a>为什么要实现覆盖引导</h4><p>因为每次进行代码路径分析的时候，我们会检测到新的代码路径，而不断的扫描新路径则会不断提高代码的覆盖率，并说明这段代码是有意义的，那么接下来需要将代码放入后续的生成中，基于这个数据上进一步变异生成，然后不断重复这一个过程。</p><h2 id="特殊条件的fuzz"><a href="#特殊条件的fuzz" class="headerlink" title="特殊条件的fuzz"></a>特殊条件的fuzz</h2><h3 id="图形化FUZZ"><a href="#图形化FUZZ" class="headerlink" title="图形化FUZZ"></a>图形化FUZZ</h3><p>很多时候的程序并不像我们我们上述所给出的程序一样，一定存在输入和输出的流，那么此时我们要怎么进行fuzz呢？我们知道，大多数的UI实现都是会对UI和func存在绑定的，那么我们的第一部程序拆解，最终拆解成我们可以进行调用的某一个函数，那么这样后我们就可以和常规的fuzz一致了。</p><h3 id="持久化程序fuzz"><a href="#持久化程序fuzz" class="headerlink" title="持久化程序fuzz"></a>持久化程序fuzz</h3><p>我们标准的fuzz的理想情况是程序是运行后给出结果立刻结束，第二次测试则进行一个新的运行。但是很多程序并不会这样，譬如webserver，它会一直停留运行，那么我们需要有以下的方法</p><ul><li>idapatch将程序修改程序逻辑为只处理1次</li><li>修改fuzz逻辑<ul><li>自己实现fuzz</li><li>持续性fuzz</li></ul></li></ul><h2 id="经典模糊测试工具"><a href="#经典模糊测试工具" class="headerlink" title="经典模糊测试工具"></a>经典模糊测试工具</h2><ul><li>AFL</li><li>libafl （iot常用，rust静态连接低依赖，有点像乐高，可以自己拼接功能）</li><li>winafl（window版）</li><li>syzkaller（同原理，进程fuzz）</li><li>libfuzzer（可以针对程序的某个函数）</li><li>fuzzilli（CS引擎fuzz）</li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> iot </category>
+          
+          <category> 工具开发 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> pwn </tag>
+            
+            <tag> 固件分析 </tag>
+            
+            <tag> 逆向工程 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>修复ida8.4移植arm等反编译卡死问题（含完整版下载）</title>
       <link href="/2025/06/01/%E4%BF%AE%E5%A4%8Dida8-4%E7%A7%BB%E6%A4%8Darm%E7%AD%89%E5%8F%8D%E7%BC%96%E8%AF%91%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%EF%BC%88%E5%90%AB%E5%AE%8C%E6%95%B4%E7%89%88%E4%B8%8B%E8%BD%BD%EF%BC%89/"/>
       <url>/2025/06/01/%E4%BF%AE%E5%A4%8Dida8-4%E7%A7%BB%E6%A4%8Darm%E7%AD%89%E5%8F%8D%E7%BC%96%E8%AF%91%E5%8D%A1%E6%AD%BB%E9%97%AE%E9%A2%98%EF%BC%88%E5%90%AB%E5%AE%8C%E6%95%B4%E7%89%88%E4%B8%8B%E8%BD%BD%EF%BC%89/</url>
