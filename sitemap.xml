@@ -2,6 +2,24 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://ddostalker.github.io/2025/06/24/c/</loc>
+    
+    <lastmod>2025-06-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://ddostalker.github.io/2025/06/24/1-txt/</loc>
+    
+    <lastmod>2025-06-24</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://ddostalker.github.io/2025/06/09/%E6%A8%A1%E7%B3%8A%E6%B5%8B%E8%AF%95%E4%B8%80/</loc>
     
     <lastmod>2025-06-09</lastmod>
@@ -139,7 +157,7 @@
 
   <url>
     <loc>https://ddostalker.github.io/</loc>
-    <lastmod>2025-06-09</lastmod>
+    <lastmod>2025-06-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
