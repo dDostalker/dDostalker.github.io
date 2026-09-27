@@ -30,8 +30,10 @@ $postsDir = Join-Path $root "posts"
 $destDir  = Join-Path $root "content"
 $buildDir = "C:\Users\dDostalker\zola-build\ddostalker.github.io"   # 构建产物放 OneDrive 外，避免同步
 
-$zola = Join-Path $env:USERPROFILE "bin\zola.exe"
-if (-not (Test-Path $zola)) { $zola = "zola" }
+$zola = 'zola'
+if ($IsWindows -and (Test-Path (Join-Path $env:USERPROFILE 'bin\zola.exe'))) {
+    $zola = Join-Path $env:USERPROFILE 'bin\zola.exe'
+}
 
 function Esc([string]$s) { $s.Replace('\', '\\').Replace('"', '\"') }
 
