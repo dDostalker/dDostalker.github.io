@@ -41,14 +41,22 @@ function Convert-Post {
     param([string]$mdPath)
 
     $lines = Get-Content -LiteralPath $mdPath -Encoding utf8
-    if ($lines.Count -lt 3 -or $lines[0].Trim() -ne '---') {
-        throw "文章第一行必须是 '---' 的 YAML front matter: $mdPath"
+    $name = [IO.Path]::GetFileNameWithoutExtension($mdPath)
+    $fm = @{}
+
+    # front matter 可选：没有就自动用 文件名=标题、修改时间=日期
+    if ($lines.Count -ge 1 -and $lines[0].Trim() -eq '---') {
+        $end = -1
+        for ($i = 1; $i -lt $lines.Count; $i++) {
+            if ($lines[$i].Trim() -eq '---') { $end = $i; break }
+        }
+        if ($end -lt 0) { throw "front matter 未闭合: $mdPath" }
+        $bodyStart = $end + 1
     }
-    $end = -1
-    for ($i = 1; $i -lt $lines.Count; $i++) {
-        if ($lines[$i].Trim() -eq '---') { $end = $i; break }
+    else {
+        Write-Host "  [提示] $name 无 front matter，自动以文件名为标题、修改时间为日期" -ForegroundColor DarkYellow
+        $bodyStart = 0
     }
-    if ($end -lt 0) { throw "front matter 未闭合: $mdPath" }
 
     # ---- 解析 YAML front matter ----
     $fm = @{}
@@ -83,7 +91,6 @@ function Convert-Post {
     }
 
     # ---- 生成 TOML front matter ----
-    $name = [IO.Path]::GetFileNameWithoutExtension($mdPath)
     $toml = [System.Collections.Generic.List[string]]::new()
     $toml.Add('+++')
     $toml.Add('title = "' + (Esc ($fm['title'] ?? $name)) + '"')
@@ -109,7 +116,10 @@ function Convert-Post {
     $toml.Add('')
 
     # ---- 正文：把 .assets 相对路径里的 %XX 编码还原，避免构建警告 ----
-    $body = ($lines[($end + 1)..($lines.Count - 1)] -join "`n")
+    $body = if ($bodyStart -lt $lines.Count) { $lines[$bodyStart..($lines.Count - 1)] -join "`n" } else { '' }
+    # Zola 不认识的语言名映射成等价高亮
+    $body = [regex]::Replace($body, '(?m)^```(Plain|plain|text|Text|plaintext|txt)\s*$', '```')
+    $body = [regex]::Replace($body, '(?m)^```(Shell|shell)\s*$', '```bash')
     $body = [regex]::Replace($body, '\]\(([^)\s]+\.assets/[^)\s]+)\)', {
         param($m)
         '](' + [uri]::UnescapeDataString($m.Groups[1].Value) + ')'
@@ -141,6 +151,20 @@ Write-Host "== 同步文章 posts/ -> content/ ==" -ForegroundColor Cyan
 Get-ChildItem -LiteralPath $destDir -Directory -ErrorAction SilentlyContinue |
     Remove-Item -Recurse -Force
 
+# 自愈：content/_index.md 是首页配置（分页/排序），误删时自动补建
+$rootIndex = Join-Path $destDir "_index.md"
+if (-not (Test-Path -LiteralPath $rootIndex)) {
+    Set-Content -LiteralPath $rootIndex -Encoding utf8 -Value @(
+        '+++'
+        'paginate_by = 15'
+        'sort_by = "date"'
+        'template = "index.html"'
+        '+++'
+        ''
+    )
+    Write-Host "  [修复] 重新生成 content/_index.md" -ForegroundColor Yellow
+}
+
 $mds = Get-ChildItem -LiteralPath $postsDir -Filter *.md -File
 if (-not $mds) { Write-Warning "posts/ 下没有 .md 文章" }
 foreach ($md in $mds) { Convert-Post -mdPath $md.FullName }
@@ -155,7 +179,7 @@ if ($SyncOnly -or ($PSBoundParameters.Count -eq 0)) {
 
 if ($Preview) {
     Push-Location $root
-    try { & $zola serve --output-dir $buildDir }
+    try { & $zola serve --force --output-dir $buildDir }
     finally { Pop-Location }
     return
 }
@@ -163,7 +187,7 @@ if ($Preview) {
 if ($Build -or $Deploy) {
     Push-Location $root
     try {
-        & $zola build --output-dir $buildDir
+        & $zola build --force --output-dir $buildDir
     }
     finally { Pop-Location }
     if ($LASTEXITCODE -ne 0) { throw "zola build 失败" }
