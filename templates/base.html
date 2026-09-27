@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="{{ config.description }}">
     <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (t !== 'dark' && t !== 'light') {
+                t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+            }
+            document.documentElement.dataset.theme = t;
+        })();
+    </script>
     <link rel="stylesheet" href="{{ get_url(path='css/site.css') }}">
     <link rel="alternate" type="application/atom+xml" href="{{ get_url(path='atom.xml') }}" title="{{ config.title }}">
 </head>
@@ -15,6 +24,8 @@
             <a href="{{ get_url(path='') }}">首页</a>
             <a href="{{ get_url(path='tags') }}">标签</a>
             <a href="{{ get_url(path='categories') }}">分类</a>
+            <a href="https://github.com/dDostalker" target="_blank" rel="noopener">GitHub</a>
+            <button id="theme-toggle" aria-label="切换主题" title="切换主题"></button>
         </nav>
     </header>
     <main>
@@ -24,6 +35,28 @@
         <span>© {{ now() | date(format='%Y') }} {{ config.extra.author }}</span>
         <span class="sep">·</span>
         <a href="{{ get_url(path='atom.xml') }}">RSS</a>
+        <span class="sep">·</span>
+        <span id="uptime" class="dim"></span>
     </footer>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var btn = document.getElementById('theme-toggle');
+            function paint() {
+                btn.textContent = root.dataset.theme === 'dark' ? '☾' : '☀';
+            }
+            btn.addEventListener('click', function () {
+                root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', root.dataset.theme);
+                paint();
+            });
+            paint();
+            var up = document.getElementById('uptime');
+            if (up) {
+                var years = new Date().getFullYear() - 2024;
+                up.textContent = years > 1 ? '第 ' + years + ' 年' : '欢迎光临';
+            }
+        })();
+    </script>
 </body>
 </html>

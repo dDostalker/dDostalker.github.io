@@ -1,9 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="intro">
-    <h1>{{ config.title }}</h1>
-    <p>{{ config.description }}</p>
+<div class="hero">
+    <h1 class="hero-title">{{ config.extra.author }}<span class="caret">▌</span></h1>
+    <p class="hero-desc">{{ config.description }}</p>
+    <div class="hero-meta">
+        <span class="stat"><b>{{ section.pages | length }}</b> 篇文章</span>
+        <span class="dot">·</span>
+        <a class="stat" href="https://github.com/dDostalker" target="_blank" rel="noopener">GitHub</a>
+        <span class="dot">·</span>
+        <a class="stat" href="{{ get_url(path='atom.xml') }}">RSS</a>
+    </div>
 </div>
 
 <section class="post-list">
@@ -14,6 +21,13 @@
             <time class="post-date">{{ page.date | date(format='%Y-%m-%d') }}</time>
         </div>
         {% if page.summary %}<p class="post-summary">{{ page.summary | safe }}</p>{% endif %}
+        {% if page.taxonomies.tags %}
+        <div class="post-tags">
+            {% for t in page.taxonomies.tags %}
+            <a class="chip" href="{{ get_taxonomy_url(kind='tags', name=t) }}">#{{ t }}</a>
+            {% endfor %}
+        </div>
+        {% endif %}
     </article>
     {% endfor %}
 </section>
