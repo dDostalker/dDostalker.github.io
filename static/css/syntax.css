@@ -1,0 +1,26 @@
+/* gruvbox 语法高亮（配合 site.css 的 --syn-* 变量） */
+.z-code { color: var(--syn-fg); }
+
+.z-comment { color: var(--syn-comment); font-style: italic; }
+
+.z-keyword { color: var(--syn-keyword); }
+.z-keyword.z-operator { color: var(--syn-operator); }
+.z-storage { color: var(--syn-keyword); }
+
+.z-string { color: var(--syn-string); }
+.z-constant { color: var(--syn-number); }
+
+.z-entity { color: var(--syn-func); }
+.z-support.z-function { color: var(--syn-func); }
+.z-support { color: var(--syn-type); }
+
+.z-variable { color: var(--syn-fg); }
+.z-variable.z-other { color: var(--syn-type); }
+
+.z-punctuation { color: var(--syn-punct); }
+.z-meta { color: var(--syn-fg); }
+
+.z-invalid {
+    color: var(--syn-keyword);
+    text-decoration: underline wavy;
+}
