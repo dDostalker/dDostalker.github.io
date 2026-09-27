@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="intro">
+    <h1>{{ config.title }}</h1>
+    <p>{{ config.description }}</p>
+</div>
+
+<section class="post-list">
+    {% for page in paginator.pages %}
+    <article class="post-item">
+        <div class="post-item-head">
+            <a class="post-item-link" href="{{ page.permalink }}">{{ page.title }}</a>
+            <time class="post-date">{{ page.date | date(format='%Y-%m-%d') }}</time>
+        </div>
+        {% if page.summary %}<p class="post-summary">{{ page.summary | safe }}</p>{% endif %}
+    </article>
+    {% endfor %}
+</section>
+
+<nav class="pager">
+    {% if paginator.previous_path %}<a href="{{ paginator.previous_path }}">← 上一页</a>{% endif %}
+    <span>{{ paginator.current_index }} / {{ paginator.number_pagers }}</span>
+    {% if paginator.next_path %}<a href="{{ paginator.next_path }}">下一页 →</a>{% endif %}
+</nav>
+{% endblock content %}

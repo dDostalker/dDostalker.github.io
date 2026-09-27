@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}404 · {{ config.title }}{% endblock title %}
+
+{% block content %}
+<div class="not-found">
+    <h1>404</h1>
+    <p>页面不存在</p>
+    <p><a href="{{ get_url(path='') }}">返回首页</a></p>
+</div>
+{% endblock content %}

@@ -1,0 +1,189 @@
+:root {
+    color-scheme: dark;
+    --bg: #10141a;
+    --bg-soft: #171c24;
+    --fg: #d5dbe4;
+    --fg-dim: #8a94a3;
+    --accent: #6cb2ff;
+    --border: #252d3a;
+    --chip-bg: #1c2430;
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+    margin: 0 auto;
+    padding: 0 1rem;
+    max-width: 46rem;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Microsoft YaHei UI", "PingFang SC", "Noto Sans SC", system-ui, sans-serif;
+    line-height: 1.75;
+}
+
+main { flex: 1; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ---- header / footer ---- */
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .5rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.site-title { font-weight: 700; font-size: 1.1rem; color: var(--fg); }
+
+.site-header nav { display: flex; gap: 1rem; }
+.site-header nav a { color: var(--fg-dim); }
+.site-header nav a:hover { color: var(--accent); text-decoration: none; }
+
+.site-footer {
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--border);
+    color: var(--fg-dim);
+    font-size: .85rem;
+}
+
+/* ---- home ---- */
+.intro { padding: 2.5rem 0 1rem; }
+.intro h1 { margin: 0 0 .4rem; }
+.intro p { margin: 0; color: var(--fg-dim); }
+
+.list-title {
+    margin: 2rem 0 .8rem;
+    font-size: 1.05rem;
+    color: var(--fg-dim);
+    font-weight: 600;
+}
+
+.page-title { margin: 2rem 0 1rem; }
+
+/* ---- post list ---- */
+.post-item { padding: .6rem 0; }
+
+.post-item-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.post-item-link { color: var(--fg); font-weight: 600; }
+.post-item-link:hover { color: var(--accent); text-decoration: none; }
+
+.post-date { color: var(--fg-dim); font-size: .85rem; white-space: nowrap; }
+
+.post-summary {
+    margin: .3rem 0 0;
+    color: var(--fg-dim);
+    font-size: .9rem;
+}
+
+.more-link { display: inline-block; margin: 1rem 0 2rem; }
+
+.pager {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.2rem;
+    margin: 2rem 0;
+    color: var(--fg-dim);
+}
+
+/* ---- article ---- */
+.post-header { margin: 2.5rem 0 1.5rem; }
+.post-title { margin: 0 0 .6rem; line-height: 1.4; }
+
+.post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+    color: var(--fg-dim);
+    font-size: .88rem;
+}
+
+.post-meta .sep { opacity: .5; }
+
+.chip {
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: .05rem .6rem;
+    font-size: .8rem;
+}
+.chip:hover { border-color: var(--accent); text-decoration: none; }
+
+.post-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.post-content h1, .post-content h2, .post-content h3 { line-height: 1.4; margin-top: 1.8em; }
+.post-content h2 { padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+
+.post-content code {
+    background: var(--bg-soft);
+    border-radius: 4px;
+    padding: .15em .4em;
+    font-size: .88em;
+    font-family: "Cascadia Code", Consolas, "JetBrains Mono", monospace;
+}
+
+.post-content pre {
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    line-height: 1.6;
+}
+
+.post-content pre code { background: none; padding: 0; }
+
+.post-content blockquote {
+    margin: 1rem 0;
+    padding: .2rem 1rem;
+    border-left: 3px solid var(--border);
+    color: var(--fg-dim);
+}
+
+.post-content table {
+    border-collapse: collapse;
+    margin: 1rem 0;
+    display: block;
+    overflow-x: auto;
+}
+
+.post-content th, .post-content td {
+    border: 1px solid var(--border);
+    padding: .4rem .8rem;
+}
+
+/* ---- taxonomy ---- */
+.term-list { list-style: none; padding: 0; margin: 1rem 0 2rem; }
+.term-list li { display: flex; align-items: center; gap: .5rem; padding: .25rem 0; }
+.term-list .count {
+    color: var(--fg-dim);
+    font-size: .8rem;
+    background: var(--chip-bg);
+    border-radius: 999px;
+    padding: 0 .5rem;
+}
+
+/* ---- 404 ---- */
+.not-found { text-align: center; padding: 4rem 0; }
+.not-found h1 { font-size: 4rem; margin: 0; }

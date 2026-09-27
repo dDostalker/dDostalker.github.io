@@ -1,0 +1,5 @@
+# 同步生成的页面（源头是 posts/，不要直接改 content/）
+/content/*/
+
+# zola 默认构建目录
+/public/
