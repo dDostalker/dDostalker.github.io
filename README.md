@@ -8,7 +8,7 @@
 | 命令                       | 作用                                                        |
 | ------------------------ | --------------------------------------------------------- |
 | `.\publish.ps1 -Preview` | 本地预览 http://127.0.0.1:1111                                |
-| `.\publish.ps1 -Build`   | 构建到 `C:\Users\dDostalker\zola-build\ddostalker.github.io` |
+| `.\publish.ps1 -Build`   | 构建到 `%USERPROFILE%\zola-build\ddostalker.github.io` |
 | `.\publish.ps1 -Deploy`  | 构建 + git 提交推送，触发 GitHub Actions 自动部署                      |
 | `.\publish.ps1`          | 仅同步 posts/ → content/                                     |
 
@@ -33,4 +33,4 @@ Source** 选择 **GitHub Actions**。
 
 ## 依赖
 
-- Zola 0.20.0：`C:\Users\dDostalker\bin\zola.exe
+- Zola 0.23.6：`C:\Users\dDostalker\bin\zola.exe

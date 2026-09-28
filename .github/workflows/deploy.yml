@@ -23,7 +23,7 @@ jobs:
       - name: 安装 Zola
         uses: taiki-e/install-action@v2
         with:
-          tool: zola@0.20.0
+          tool: zola@0.23.6
 
       - name: 同步文章
         shell: pwsh

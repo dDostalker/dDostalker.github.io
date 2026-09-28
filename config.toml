@@ -14,11 +14,14 @@ taxonomies = [
 ]
 
 [markdown]
-highlight_code = true
-highlight_theme = "css"
 render_emoji = true
 external_links_target_blank = true
 external_links_no_referrer = true
+
+[markdown.highlighting]
+style = "inline"
+light_theme = "gruvbox-light-medium"
+dark_theme = "gruvbox-dark-medium"
 
 [extra]
 author = "dDostalker"

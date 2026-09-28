@@ -28,7 +28,7 @@ $ErrorActionPreference = "Stop"
 $root     = $PSScriptRoot
 $postsDir = Join-Path $root "posts"
 $destDir  = Join-Path $root "content"
-$buildDir = "C:\Users\dDostalker\zola-build\ddostalker.github.io"   # 构建产物放 OneDrive 外，避免同步
+$buildDir = Join-Path $env:USERPROFILE "zola-build\ddostalker.github.io"   # 构建产物放 OneDrive 外，避免同步
 
 $zola = 'zola'
 if ($IsWindows -and (Test-Path (Join-Path $env:USERPROFILE 'bin\zola.exe'))) {
