@@ -40,7 +40,7 @@ function Esc([string]$s) { $s.Replace('\', '\\').Replace('"', '\"') }
 function Convert-Post {
     param([string]$mdPath)
 
-    $lines = Get-Content -LiteralPath $mdPath -Encoding utf8
+    $lines = @(Get-Content -LiteralPath $mdPath -Encoding utf8)
     $name = [IO.Path]::GetFileNameWithoutExtension($mdPath)
     $fm = @{}
 
