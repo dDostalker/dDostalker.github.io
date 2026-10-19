@@ -21,50 +21,8 @@ posts/my-post.md              →  content/my-post/index.md   (YAML → TOML)
 posts/my-post.assets/*.png    →  content/my-post/my-post.assets/*.png
 ```
 
-Zola 对 `index.md` 页面启用「资源同位」（assets colocation），旁边所有非 md 文件
-会一起发布，所以 `![](my-post.assets/xx.png)` 这种相对路径本地（Obsidian）和网页
-显示完全一致——和 mdBook 读利刃笔记是同一套机制。
-
-## 部署
-
-推送后 GitHub Actions（`.github/workflows/deploy.yml`）自动构建并发布到
-GitHub Pages。首次使用需在仓库 **Settings → Pages → Build and deployment →
-Source** 选择 **GitHub Actions**。
-
-### 首次配置（一次性）
-
-1. GitHub 仓库 → **Settings → Pages → Build and deployment → Source**
-   选择 **GitHub Actions**。
-2. 确认仓库 `main` 分支为默认分支（workflow 监听 `main`）。
-
-### 发布流程
-
-```text
-.\publish.ps1 -Deploy
-    ├─ posts/ → content/ 同步
-    ├─ zola build 本地验证
-    └─ git commit + push main
-         └─ GitHub Actions 自动接管
-```
-
-CI 上的流水线（`deploy.yml`）：
-
-1. `actions/checkout` 拉取仓库；
-2. `taiki-e/install-action` 安装 Zola 0.23.6；
-3. `./publish.ps1 -SyncOnly` 同步文章；
-4. `zola build` 生成 `public/`；
-5. `upload-pages-artifact` + `deploy-pages` 发布到 GitHub Pages。
-
-### 手动触发与排错
-
-- 手动部署：仓库 **Actions → Deploy site to Pages → Run workflow**（支持
-  `workflow_dispatch`）。
-- 并发控制：同一时间只保留一次部署（`concurrency: pages`，新推送会取消
-  旧构建）。
-- 构建失败：查看 **Actions** 对应 run 的日志；本地先 `.\publish.ps1
-  -Build` 复现，配置以 `config.toml` 为准（当前 Zola 0.23 的
-  `[markdown.highlighting]` 写法）。
+Zola 对 `index.md` 页面启用「资源同位」（assets colocation），旁边所有非 md 文件会一起发布，只要笔记是相对路径就好。
 
 ## 依赖
 
-- Zola 0.23.6：`C:\Users\dDostalker\bin\zola.exe
+zola

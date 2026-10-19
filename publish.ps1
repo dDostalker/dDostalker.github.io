@@ -112,6 +112,11 @@ function Convert-Post {
         if ($fm['tags'])       { $toml.Add('tags = [' + (($fm['tags']       | ForEach-Object { '"' + (Esc $_) + '"' }) -join ', ') + ']') }
         if ($fm['categories']) { $toml.Add('categories = [' + (($fm['categories'] | ForEach-Object { '"' + (Esc $_) + '"' }) -join ', ') + ']') }
     }
+    if ($fm['pinned'] -eq 'true') {
+        $toml.Add('')
+        $toml.Add('[extra]')
+        $toml.Add('pinned = true')
+    }
     $toml.Add('+++')
     $toml.Add('')
 
