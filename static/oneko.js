@@ -22,6 +22,7 @@
   let idleAnimationFrame = 0;
 
   const nekoSpeed = 10;
+  const CELL = 128;
   const spriteSets = {
     idle: [[-3, -3]],
     alert: [[-7, -3]],
@@ -116,13 +117,13 @@
   
     nekoEl.id = "oneko";
     nekoEl.ariaHidden = true;
-    nekoEl.style.width = "32px";
-    nekoEl.style.height = "32px";
+    nekoEl.style.width = `${CELL}px`;
+    nekoEl.style.height = `${CELL}px`;
     nekoEl.style.position = "fixed";
     nekoEl.style.pointerEvents = "none";
     nekoEl.style.imageRendering = "pixelated";
-    nekoEl.style.left = `${nekoPosX - 16}px`;
-    nekoEl.style.top = `${nekoPosY - 16}px`;
+    nekoEl.style.left = `${nekoPosX - CELL / 2}px`;
+    nekoEl.style.top = `${nekoPosY - CELL / 2}px`;
     nekoEl.style.zIndex = 2147483647;
 
     nekoEl.style.backgroundImage = `url(${nekoFile})`;
@@ -172,7 +173,7 @@
 
   function setSprite(name, frame) {
     const sprite = spriteSets[name][frame % spriteSets[name].length];
-    nekoEl.style.backgroundPosition = `${sprite[0] * 32}px ${sprite[1] * 32}px`;
+    nekoEl.style.backgroundPosition = `${sprite[0] * CELL}px ${sprite[1] * CELL}px`;
   }
 
   function resetIdleAnimation() {
@@ -190,16 +191,16 @@
       idleAnimation == null
     ) {
       let avalibleIdleAnimations = ["sleeping", "scratchSelf"];
-      if (nekoPosX < 32) {
+      if (nekoPosX < CELL / 2) {
         avalibleIdleAnimations.push("scratchWallW");
       }
-      if (nekoPosY < 32) {
+      if (nekoPosY < CELL / 2) {
         avalibleIdleAnimations.push("scratchWallN");
       }
-      if (nekoPosX > window.innerWidth - 32) {
+      if (nekoPosX > window.innerWidth - CELL / 2) {
         avalibleIdleAnimations.push("scratchWallE");
       }
-      if (nekoPosY > window.innerHeight - 32) {
+      if (nekoPosY > window.innerHeight - CELL / 2) {
         avalibleIdleAnimations.push("scratchWallS");
       }
       idleAnimation =
@@ -268,11 +269,11 @@
     nekoPosX -= (diffX / distance) * nekoSpeed;
     nekoPosY -= (diffY / distance) * nekoSpeed;
 
-    nekoPosX = Math.min(Math.max(16, nekoPosX), window.innerWidth - 16);
-    nekoPosY = Math.min(Math.max(16, nekoPosY), window.innerHeight - 16);
+    nekoPosX = Math.min(Math.max(CELL / 2, nekoPosX), window.innerWidth - CELL / 2);
+    nekoPosY = Math.min(Math.max(CELL / 2, nekoPosY), window.innerHeight - CELL / 2);
 
-    nekoEl.style.left = `${nekoPosX - 16}px`;
-    nekoEl.style.top = `${nekoPosY - 16}px`;
+    nekoEl.style.left = `${nekoPosX - CELL / 2}px`;
+    nekoEl.style.top = `${nekoPosY - CELL / 2}px`;
   }
 
   init();

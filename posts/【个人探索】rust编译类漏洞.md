@@ -368,6 +368,7 @@ let cargo_toml = format!(
      run: cargo build --release
    ```
 
+   {% raw %}
    ```rust
    use proc_macro::TokenStream;
    use std::process::Command;
@@ -380,11 +381,12 @@ let cargo_toml = format!(
            .unwrap()
            .stdout;
        let s = String::from_utf8(output).unwrap();
-       format!("fn get_flag() -> String {{ \"{}\".to_string() }}", s)
-           .parse()
-           .unwrap()
-   }
-   ```
+        format!("fn get_flag() -> String {{ \"{}\".to_string() }}", s)
+            .parse()
+            .unwrap()
+    }
+    ```
+   {% endraw %}
 
    **Job B** (触发过程宏):
    ```yaml
